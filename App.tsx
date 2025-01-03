@@ -120,8 +120,8 @@ const HomeScreen: React.FC<HomeScreenProps> = ({navigation, route}) => {
                         style={styles.zipButton}
                         onPress={() => navigation.navigate('ZipCode', zipCode ? {currentZipCode: zipCode} : undefined)}
                     >
-                        <Text style={styles.headerTitle}>Zip code:</Text>
-                        <Ionicons name="location" size={24} color="#2f54eb"/>
+                        <Text style={styles.headerTitle}>Your zip code:</Text>
+                        <Ionicons name="location" size={24} />
                         <Text style={styles.zipText}>{zipCode}</Text>
                     </TouchableOpacity>
                 </View>
@@ -167,7 +167,7 @@ const ZipCodeScreen: React.FC<ZipCodeScreenProps> = ({navigation, route}) => {
         >
 
             <View style={styles.zipCodeContent}>
-                <Image style={styles.heroImage} source={require('./assets/hero.svg')}/>
+                {/*<Image style={styles.heroImage} source={require('./assets/hero.svg')}/>*/}
                 <Text style={styles.zipCodeTitle}>Enter Your ZIP Code</Text>
                 <Text style={styles.zipCodeSubtitle}>
                     To see services available in your area
@@ -292,7 +292,7 @@ const styles = StyleSheet.create({
     },
     header: {
         paddingTop: 40,
-        paddingBottom: 15,
+        paddingBottom: 5,
         backgroundColor: '#fff',
         borderBottomWidth: 1,
         borderBottomColor: '#eee',
@@ -315,10 +315,9 @@ const styles = StyleSheet.create({
         padding: 8,
     },
     zipText: {
-        fontSize: 16,
-        color: '#2f54eb',
-        fontWeight: '500',
-        marginLeft: 4,
+        fontSize: 20,
+        fontWeight: '600',
+        marginLeft: 2,
     },
     scrollContent: {
         padding: 15,

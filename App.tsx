@@ -36,42 +36,36 @@ const REPAIR_OFFERS = [
         id: '1',
         title: 'Walk-in Showers',
         description: 'Modern shower cabins with easy access',
-        price: 'from $500',
     },
     {
         id: '2',
         title: 'Walk-in Tubs',
         description: 'Bathtubs with door for convenient access',
-        price: 'from $750',
     },
     {
         id: '3',
         title: 'Stairlifts',
         description: 'Safe and reliable stair lift solutions',
-        price: 'from $2,000',
     },
     {
         id: '4',
         title: 'Kitchen Cabinets',
         description: 'Custom kitchen cabinet installation',
-        price: 'from $3,000',
     },
     {
         id: '5',
         title: 'Window Replacement',
         description: 'Energy-efficient window solutions',
-        price: 'from $400',
     },
     {
         id: '6',
         title: 'Gutter Guards',
         description: 'Premium gutter protection systems',
-        price: 'from $300',
     },
 ];
 
 const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
-    const renderOfferCard = ({ id, title, description, price }: typeof REPAIR_OFFERS[0]) => (
+    const renderOfferCard = ({ id, title, description }: typeof REPAIR_OFFERS[0]) => (
         <View key={id} style={styles.card}>
             <View style={styles.cardContent}>
                 <Text style={styles.cardTitle}>{title}</Text>
@@ -80,10 +74,10 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
                     style={styles.cardButton}
                     activeOpacity={0.8}
                     onPress={() => {
-                        navigation.navigate('Details', { id, title, description, price });
+                        navigation.navigate('Details', { id, title, description, price: 'from $500' });
                     }}
                 >
-                    <Text style={styles.cardButtonText}>Get Estimate</Text>
+                    <Text style={styles.cardButtonText}>See Details</Text>
                 </TouchableOpacity>
             </View>
         </View>
@@ -128,6 +122,7 @@ const DetailsScreen: React.FC<DetailsScreenProps> = ({ route }) => {
         </View>
     );
 };
+
 const App = () => {
     return (
         <NavigationContainer>

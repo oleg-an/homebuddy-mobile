@@ -35,26 +35,38 @@ const REPAIR_OFFERS = [
     {
         id: '1',
         title: 'Walk-in Showers',
-        description: 'Современные душевые кабины с удобным входом',
-        price: 'от 50,000 ₽',
+        description: 'Modern shower cabins with easy access',
+        price: 'from $500',
     },
     {
         id: '2',
         title: 'Walk-in Tubs',
-        description: 'Ванны с дверцей для удобного доступа',
-        price: 'от 75,000 ₽',
+        description: 'Bathtubs with door for convenient access',
+        price: 'from $750',
     },
     {
         id: '3',
-        title: 'Ремонт Ванной Комнаты',
-        description: 'Полный ремонт ванной под ключ',
-        price: 'от 100,000 ₽',
+        title: 'Stairlifts',
+        description: 'Safe and reliable stair lift solutions',
+        price: 'from $2,000',
     },
     {
         id: '4',
-        title: 'Установка Плитки',
-        description: 'Профессиональная укладка плитки',
-        price: 'от 30,000 ₽',
+        title: 'Kitchen Cabinets',
+        description: 'Custom kitchen cabinet installation',
+        price: 'from $3,000',
+    },
+    {
+        id: '5',
+        title: 'Window Replacement',
+        description: 'Energy-efficient window solutions',
+        price: 'from $400',
+    },
+    {
+        id: '6',
+        title: 'Gutter Guards',
+        description: 'Premium gutter protection systems',
+        price: 'from $300',
     },
 ];
 
@@ -79,11 +91,12 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         <View style={styles.container}>
             <StatusBar style="auto" />
             <View style={styles.header}>
-                <Text style={styles.headerTitle}>Услуги по Ремонту</Text>
-                <Text style={styles.headerSubtitle}>Выберите интересующую услугу</Text>
+                <Text style={styles.headerTitle}>Home Repair Services</Text>
             </View>
             <ScrollView style={styles.scrollView}>
-                {REPAIR_OFFERS.map(renderOfferCard)}
+                <View style={styles.scrollContent}>
+                    {REPAIR_OFFERS.map(renderOfferCard)}
+                </View>
             </ScrollView>
         </View>
     );
@@ -104,7 +117,7 @@ const DetailsScreen: React.FC<DetailsScreenProps> = ({ route }) => {
                 <Text style={styles.detailsDescription}>{description}</Text>
                 <Text style={styles.detailsPrice}>{price}</Text>
                 <TouchableOpacity style={styles.orderButton}>
-                    <Text style={styles.orderButtonText}>Заказать</Text>
+                    <Text style={styles.orderButtonText}>Get Estimate</Text>
                 </TouchableOpacity>
             </View>
         </View>
@@ -114,7 +127,18 @@ const DetailsScreen: React.FC<DetailsScreenProps> = ({ route }) => {
 const App = () => {
     return (
         <NavigationContainer>
-            <Stack.Navigator>
+            <Stack.Navigator
+                screenOptions={{
+                    headerStyle: {
+                        backgroundColor: '#fff',
+                    },
+                    headerTintColor: '#2f54eb',
+                    headerTitleStyle: {
+                        fontWeight: '500',
+                        color: '#2f54eb',
+                    },
+                }}
+            >
                 <Stack.Screen
                     name="Home"
                     component={HomeScreen}
@@ -130,34 +154,30 @@ const App = () => {
     );
 };
 
-const { width } = Dimensions.get('window');
-
 const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#f5f5f5',
     },
     header: {
-        paddingTop: 60,
-        paddingBottom: 20,
+        paddingTop: 40,
+        paddingBottom: 15,
         paddingHorizontal: 20,
         backgroundColor: '#fff',
         borderBottomWidth: 1,
         borderBottomColor: '#eee',
     },
     headerTitle: {
-        fontSize: 28,
-        fontWeight: 'bold',
-        color: '#333',
-    },
-    headerSubtitle: {
-        fontSize: 16,
-        color: '#666',
-        marginTop: 5,
+        fontSize: 24,
+        fontWeight: '500',
+        color: '#2f54eb',
     },
     scrollView: {
         flex: 1,
+    },
+    scrollContent: {
         padding: 15,
+        paddingBottom: 20,
     },
     card: {
         backgroundColor: '#fff',
@@ -189,7 +209,7 @@ const styles = StyleSheet.create({
     cardPrice: {
         fontSize: 18,
         fontWeight: 'bold',
-        color: '#2ecc71',
+        color: '#fa8c16',
     },
     detailsContainer: {
         flex: 1,
@@ -213,11 +233,11 @@ const styles = StyleSheet.create({
     detailsPrice: {
         fontSize: 22,
         fontWeight: 'bold',
-        color: '#2ecc71',
+        color: '#fa8c16',
         marginBottom: 20,
     },
     orderButton: {
-        backgroundColor: '#2ecc71',
+        backgroundColor: '#fa8c16',
         padding: 15,
         borderRadius: 10,
         alignItems: 'center',

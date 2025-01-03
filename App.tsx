@@ -72,19 +72,21 @@ const REPAIR_OFFERS = [
 
 const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     const renderOfferCard = ({ id, title, description, price }: typeof REPAIR_OFFERS[0]) => (
-        <TouchableOpacity
-            key={id}
-            style={styles.card}
-            onPress={() => {
-                navigation.navigate('Details', { id, title, description, price });
-            }}
-        >
+        <View key={id} style={styles.card}>
             <View style={styles.cardContent}>
                 <Text style={styles.cardTitle}>{title}</Text>
                 <Text style={styles.cardDescription}>{description}</Text>
-                <Text style={styles.cardPrice}>{price}</Text>
+                <TouchableOpacity
+                    style={styles.cardButton}
+                    activeOpacity={0.8}
+                    onPress={() => {
+                        navigation.navigate('Details', { id, title, description, price });
+                    }}
+                >
+                    <Text style={styles.cardButtonText}>Get Estimate</Text>
+                </TouchableOpacity>
             </View>
-        </TouchableOpacity>
+        </View>
     );
 
     return (
@@ -116,14 +118,16 @@ const DetailsScreen: React.FC<DetailsScreenProps> = ({ route }) => {
                 <Text style={styles.detailsTitle}>{title}</Text>
                 <Text style={styles.detailsDescription}>{description}</Text>
                 <Text style={styles.detailsPrice}>{price}</Text>
-                <TouchableOpacity style={styles.orderButton}>
+                <TouchableOpacity
+                    style={styles.orderButton}
+                    activeOpacity={0.6}
+                >
                     <Text style={styles.orderButtonText}>Get Estimate</Text>
                 </TouchableOpacity>
             </View>
         </View>
     );
 };
-
 const App = () => {
     return (
         <NavigationContainer>
@@ -162,15 +166,47 @@ const styles = StyleSheet.create({
     header: {
         paddingTop: 40,
         paddingBottom: 15,
-        paddingHorizontal: 20,
         backgroundColor: '#fff',
         borderBottomWidth: 1,
         borderBottomColor: '#eee',
+        paddingLeft: 20,
+    },
+    headerContent: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingHorizontal: 20,
     },
     headerTitle: {
         fontSize: 24,
         fontWeight: '500',
         color: '#2f54eb',
+    },
+    howItWorksCard: {
+        backgroundColor: '#fff',
+        borderRadius: 15,
+        marginBottom: 20,
+        padding: 15,
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5,
+        borderWidth: 2,
+        borderColor: '#2f54eb',
+    },
+    howItWorksTitle: {
+        fontSize: 22,
+        fontWeight: '500',
+        color: '#2f54eb',
+        marginBottom: 5,
+    },
+    howItWorksDescription: {
+        fontSize: 16,
+        color: '#666',
     },
     scrollView: {
         flex: 1,
@@ -204,12 +240,18 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: '#666',
         marginTop: 5,
-        marginBottom: 10,
+        marginBottom: 15,
     },
-    cardPrice: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: '#fa8c16',
+    cardButton: {
+        backgroundColor: '#2f54eb',
+        padding: 12,
+        borderRadius: 8,
+        alignItems: 'center',
+    },
+    cardButtonText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: '500',
     },
     detailsContainer: {
         flex: 1,
@@ -246,6 +288,19 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontSize: 18,
         fontWeight: 'bold',
+    },
+    sectionTitle: {
+        fontSize: 22,
+        fontWeight: 'bold',
+        color: '#333',
+        marginBottom: 15,
+        marginTop: 20,
+    },
+    sectionText: {
+        fontSize: 16,
+        color: '#666',
+        marginBottom: 15,
+        lineHeight: 24,
     },
 });
 

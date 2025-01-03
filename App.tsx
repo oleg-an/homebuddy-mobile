@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 import {
     StyleSheet,
     View,
@@ -11,12 +11,12 @@ import {
     Platform
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Ionicons } from '@expo/vector-icons';
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RouteProp } from '@react-navigation/native';
-import { StatusBar } from 'expo-status-bar';
+import {Ionicons} from '@expo/vector-icons';
+import {NavigationContainer} from '@react-navigation/native';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {RouteProp} from '@react-navigation/native';
+import {StatusBar} from 'expo-status-bar';
 
 type RootStackParamList = {
     Home: { zipCode?: string } | undefined;
@@ -71,7 +71,7 @@ const REPAIR_OFFERS = [
     },
 ];
 
-const HomeScreen: React.FC<HomeScreenProps> = ({ navigation, route }) => {
+const HomeScreen: React.FC<HomeScreenProps> = ({navigation, route}) => {
     const [zipCode, setZipCode] = useState(route.params?.zipCode || '');
 
     useEffect(() => {
@@ -113,25 +113,21 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation, route }) => {
 
     return (
         <View style={styles.container}>
-            <StatusBar style="auto" />
+            <StatusBar style="auto"/>
             <View style={styles.header}>
                 <View style={styles.headerContent}>
-                    <Text style={styles.headerTitle}>Home Repair Services</Text>
                     <TouchableOpacity
                         style={styles.zipButton}
-                        onPress={() => navigation.navigate('ZipCode', zipCode ? { currentZipCode: zipCode } : undefined)}
+                        onPress={() => navigation.navigate('ZipCode', zipCode ? {currentZipCode: zipCode} : undefined)}
                     >
-                        <Ionicons name="location" size={24} color="#2f54eb" />
-                        {zipCode ? (
-                            <Text style={styles.zipText}>{zipCode}</Text>
-                        ) : (
-                            <Text style={[styles.zipText, { color: '#aaa' }]}>Add ZIP</Text>
-                        )}
+                        <Text style={styles.headerTitle}>Zip code:</Text>
+                        <Ionicons name="location" size={24} color="#2f54eb"/>
+                        <Text style={styles.zipText}>{zipCode}</Text>
                     </TouchableOpacity>
                 </View>
             </View>
 
-            <ScrollView style={styles.scrollView}>
+            <ScrollView>
                 <View style={styles.scrollContent}>
                     {REPAIR_OFFERS.map(renderOfferCard)}
                 </View>
@@ -144,8 +140,9 @@ type ZipCodeScreenProps = {
     navigation: NativeStackNavigationProp<RootStackParamList, 'ZipCode'>;
     route: RouteProp<RootStackParamList, 'ZipCode'>;
 };
+import {Image} from 'expo-image';
 
-const ZipCodeScreen: React.FC<ZipCodeScreenProps> = ({ navigation, route }) => {
+const ZipCodeScreen: React.FC<ZipCodeScreenProps> = ({navigation, route}) => {
     const [zipCode, setZipCode] = useState(route.params?.currentZipCode || '');
     const [error, setError] = useState('');
 
@@ -160,7 +157,7 @@ const ZipCodeScreen: React.FC<ZipCodeScreenProps> = ({ navigation, route }) => {
         await AsyncStorage.setItem('zipCode', zipCode);
 
         // Save ZIP code and go back to Home screen
-        navigation.navigate('Home', { zipCode });
+        navigation.navigate('Home', {zipCode});
     };
 
     return (
@@ -168,7 +165,9 @@ const ZipCodeScreen: React.FC<ZipCodeScreenProps> = ({ navigation, route }) => {
             behavior={Platform.OS === "ios" ? "padding" : "height"}
             style={styles.zipCodeScreen}
         >
+
             <View style={styles.zipCodeContent}>
+                <Image style={styles.heroImage} source={require('./assets/hero.svg')}/>
                 <Text style={styles.zipCodeTitle}>Enter Your ZIP Code</Text>
                 <Text style={styles.zipCodeSubtitle}>
                     To see services available in your area
@@ -191,7 +190,7 @@ const ZipCodeScreen: React.FC<ZipCodeScreenProps> = ({ navigation, route }) => {
 
                 <Text style={[
                     styles.errorText,
-                    { opacity: error.trim() ? 1 : 0 }
+                    {opacity: error.trim() ? 1 : 0}
                 ]}>
                     {error}
                 </Text>
@@ -200,7 +199,7 @@ const ZipCodeScreen: React.FC<ZipCodeScreenProps> = ({ navigation, route }) => {
                     style={styles.submitButton}
                     onPress={validateAndSaveZipCode}
                 >
-                    <Text style={styles.submitButtonText}>Find Available Services</Text>
+                    <Text style={styles.submitButtonText}>Find available services</Text>
                 </TouchableOpacity>
             </View>
         </KeyboardAvoidingView>
@@ -212,14 +211,14 @@ type DetailsScreenProps = {
     navigation: NativeStackNavigationProp<RootStackParamList, 'Details'>;
 };
 
-const DetailsScreen: React.FC<DetailsScreenProps> = ({ route }) => {
-    const { title, description, zipCode } = route.params;
+const DetailsScreen: React.FC<DetailsScreenProps> = ({route}) => {
+    const {title, description, zipCode} = route.params;
 
     const handleEstimate = () => {
         Alert.alert(
             'Success',
             `We'll prepare an estimate for ${title} in ZIP code ${zipCode}`,
-            [{ text: 'OK' }]
+            [{text: 'OK'}]
         );
     };
 
@@ -259,8 +258,7 @@ const App = () => {
                     name="ZipCode"
                     component={ZipCodeScreen}
                     options={{
-                        title: 'Enter ZIP Code',
-                        headerLeft: () => null, // Remove back button
+                        title: 'Choose area',
                         gestureEnabled: false, // Disable swipe back on iOS
                     }}
                 />
@@ -275,7 +273,7 @@ const App = () => {
                 <Stack.Screen
                     name="Details"
                     component={DetailsScreen}
-                    options={({ route }) => ({ title: route.params.title })}
+                    options={({route}) => ({title: route.params.title})}
                 />
             </Stack.Navigator>
         </NavigationContainer>
@@ -283,6 +281,11 @@ const App = () => {
 };
 
 const styles = StyleSheet.create({
+    heroImage: {
+        height: 250,
+        width: 120,
+        marginBottom: 20
+    },
     container: {
         flex: 1,
         backgroundColor: '#f5f5f5',
@@ -298,10 +301,11 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        paddingHorizontal: 20,
+        paddingHorizontal: 16,
     },
     headerTitle: {
-        fontSize: 24,
+        marginRight: 10,
+        fontSize: 20,
         fontWeight: '500',
         color: '#2f54eb',
     },
@@ -310,17 +314,11 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         padding: 8,
     },
-    locationIcon: {
-        marginLeft: 4,
-    },
     zipText: {
         fontSize: 16,
         color: '#2f54eb',
         fontWeight: '500',
         marginLeft: 4,
-    },
-    scrollView: {
-        flex: 1,
     },
     scrollContent: {
         padding: 15,
@@ -407,7 +405,6 @@ const styles = StyleSheet.create({
     },
     zipCodeContent: {
         paddingHorizontal: 20,
-        width: '100%',
         alignItems: 'center',
     },
     zipCodeTitle: {

@@ -1,8 +1,4 @@
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RouteProp } from '@react-navigation/native';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     StyleSheet,
     View,
@@ -14,19 +10,23 @@ import {
     KeyboardAvoidingView,
     Platform
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Ionicons } from '@expo/vector-icons';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RouteProp } from '@react-navigation/native';
 import { StatusBar } from 'expo-status-bar';
 
-
 type RootStackParamList = {
-    Home: undefined;
+    Home: { zipCode?: string } | undefined;
     Details: {
         id: string;
         title: string;
         description: string;
-        price: string;
         zipCode: string;
     };
-    ZipCode: undefined;
+    ZipCode: { currentZipCode?: string } | undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -35,6 +35,7 @@ type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'H
 
 type HomeScreenProps = {
     navigation: HomeScreenNavigationProp;
+    route: RouteProp<RootStackParamList, 'Home'>;
 };
 
 const REPAIR_OFFERS = [
@@ -70,19 +71,26 @@ const REPAIR_OFFERS = [
     },
 ];
 
-const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
-    const [zipCode, setZipCode] = useState('');
-    const [zipError, setZipError] = useState('');
+const HomeScreen: React.FC<HomeScreenProps> = ({ navigation, route }) => {
+    const [zipCode, setZipCode] = useState(route.params?.zipCode || '');
 
-    const validateZipCode = (zip: string) => {
-        const zipRegex = /^\d{5}$/;
-        return zipRegex.test(zip);
-    };
+    useEffect(() => {
+        const checkZipCode = async () => {
+            if (!zipCode) {
+                const storedZipCode = await AsyncStorage.getItem('zipCode');
+                if (storedZipCode) {
+                    setZipCode(storedZipCode);
+                } else {
+                    navigation.navigate('ZipCode');
+                }
+            }
+        };
+        checkZipCode();
+    }, []);
 
     const handleCardPress = (service: typeof REPAIR_OFFERS[0]) => {
         navigation.navigate('Details', {
             ...service,
-            price: 'from $500',
             zipCode
         });
     };
@@ -111,12 +119,14 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
                     <Text style={styles.headerTitle}>Home Repair Services</Text>
                     <TouchableOpacity
                         style={styles.zipButton}
-                        onPress={() => navigation.navigate('ZipCode')}
+                        onPress={() => navigation.navigate('ZipCode', zipCode ? { currentZipCode: zipCode } : undefined)}
                     >
-                        <Text style={styles.locationIcon}>📍</Text>
+                        <Ionicons name="location" size={24} color="#2f54eb" />
                         {zipCode ? (
                             <Text style={styles.zipText}>{zipCode}</Text>
-                        ) : null}
+                        ) : (
+                            <Text style={[styles.zipText, { color: '#aaa' }]}>Add ZIP</Text>
+                        )}
                     </TouchableOpacity>
                 </View>
             </View>
@@ -132,27 +142,25 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 
 type ZipCodeScreenProps = {
     navigation: NativeStackNavigationProp<RootStackParamList, 'ZipCode'>;
+    route: RouteProp<RootStackParamList, 'ZipCode'>;
 };
 
-const ZipCodeScreen: React.FC<ZipCodeScreenProps> = ({ navigation }) => {
-    const [zipCode, setZipCode] = useState('');
+const ZipCodeScreen: React.FC<ZipCodeScreenProps> = ({ navigation, route }) => {
+    const [zipCode, setZipCode] = useState(route.params?.currentZipCode || '');
     const [error, setError] = useState('');
 
-    const validateAndSaveZipCode = () => {
+    const validateAndSaveZipCode = async () => {
         const zipRegex = /^\d{5}$/;
-        if (!zipCode) {
-            setError('ZIP code is required');
-            return;
-        }
-
         if (!zipRegex.test(zipCode)) {
             setError('Please enter a valid 5-digit ZIP code');
             return;
         }
 
-        // Here you would typically save the ZIP code to your app's state management
-        setError('');
-        navigation.goBack();
+        // Save ZIP code to AsyncStorage
+        await AsyncStorage.setItem('zipCode', zipCode);
+
+        // Save ZIP code and go back to Home screen
+        navigation.navigate('Home', { zipCode });
     };
 
     return (
@@ -169,31 +177,30 @@ const ZipCodeScreen: React.FC<ZipCodeScreenProps> = ({ navigation }) => {
                 <TextInput
                     style={[
                         styles.zipCodeInput,
-                        error ? styles.zipCodeInputError : null
+                        error.trim() ? styles.zipCodeInputError : null
                     ]}
                     placeholder="Enter ZIP code"
                     value={zipCode}
                     onChangeText={(text) => {
                         setZipCode(text.replace(/[^0-9]/g, '').slice(0, 5));
-                        setError('');
+                        setError(' ');
                     }}
                     keyboardType="numeric"
                     maxLength={5}
                 />
 
-                {error ? (
-                    <Text style={styles.errorText}>{error}</Text>
-                ) : null}
+                <Text style={[
+                    styles.errorText,
+                    { opacity: error.trim() ? 1 : 0 }
+                ]}>
+                    {error}
+                </Text>
 
                 <TouchableOpacity
-                    style={[
-                        styles.submitButton,
-                        !zipCode && styles.submitButtonDisabled
-                    ]}
+                    style={styles.submitButton}
                     onPress={validateAndSaveZipCode}
-                    disabled={!zipCode}
                 >
-                    <Text style={styles.submitButtonText}>Save ZIP Code</Text>
+                    <Text style={styles.submitButtonText}>Find Available Services</Text>
                 </TouchableOpacity>
             </View>
         </KeyboardAvoidingView>
@@ -206,7 +213,7 @@ type DetailsScreenProps = {
 };
 
 const DetailsScreen: React.FC<DetailsScreenProps> = ({ route }) => {
-    const { title, description, price, zipCode } = route.params;
+    const { title, description, zipCode } = route.params;
 
     const handleEstimate = () => {
         Alert.alert(
@@ -221,7 +228,6 @@ const DetailsScreen: React.FC<DetailsScreenProps> = ({ route }) => {
             <View style={styles.detailsContent}>
                 <Text style={styles.detailsTitle}>{title}</Text>
                 <Text style={styles.detailsDescription}>{description}</Text>
-                <Text style={styles.detailsPrice}>{price}</Text>
                 <TouchableOpacity
                     style={styles.orderButton}
                     activeOpacity={0.6}
@@ -250,22 +256,26 @@ const App = () => {
                 }}
             >
                 <Stack.Screen
+                    name="ZipCode"
+                    component={ZipCodeScreen}
+                    options={{
+                        title: 'Enter ZIP Code',
+                        headerLeft: () => null, // Remove back button
+                        gestureEnabled: false, // Disable swipe back on iOS
+                    }}
+                />
+                <Stack.Screen
                     name="Home"
                     component={HomeScreen}
-                    options={{ headerShown: false }}
+                    options={{
+                        headerShown: false,
+                        gestureEnabled: false // Disable swipe back on iOS
+                    }}
                 />
                 <Stack.Screen
                     name="Details"
                     component={DetailsScreen}
                     options={({ route }) => ({ title: route.params.title })}
-                />
-                <Stack.Screen
-                    name="ZipCode"
-                    component={ZipCodeScreen}
-                    options={{
-                        title: 'Enter ZIP Code',
-                        presentation: 'modal'
-                    }}
                 />
             </Stack.Navigator>
         </NavigationContainer>
@@ -301,14 +311,13 @@ const styles = StyleSheet.create({
         padding: 8,
     },
     locationIcon: {
-        fontSize: 20,
-        marginRight: 4,
+        marginLeft: 4,
     },
     zipText: {
-        marginLeft: 8,
         fontSize: 16,
         color: '#2f54eb',
         fontWeight: '500',
+        marginLeft: 4,
     },
     scrollView: {
         flex: 1,
@@ -394,33 +403,35 @@ const styles = StyleSheet.create({
     zipCodeScreen: {
         flex: 1,
         backgroundColor: '#fff',
+        justifyContent: 'center', // Center content vertically
     },
     zipCodeContent: {
-        padding: 20,
+        paddingHorizontal: 20,
+        width: '100%',
         alignItems: 'center',
     },
     zipCodeTitle: {
-        fontSize: 24,
+        fontSize: 22,
         fontWeight: 'bold',
         color: '#333',
-        marginBottom: 10,
+        marginBottom: 4,
         textAlign: 'center',
     },
     zipCodeSubtitle: {
-        fontSize: 16,
+        fontSize: 15,
         color: '#666',
-        marginBottom: 30,
+        marginBottom: 12,
         textAlign: 'center',
     },
     zipCodeInput: {
         borderWidth: 1,
         borderColor: '#ddd',
         borderRadius: 8,
-        padding: 12,
+        padding: 10,
         fontSize: 16,
         backgroundColor: '#fff',
         width: '100%',
-        marginBottom: 10,
+        marginBottom: 4,
     },
     zipCodeInputError: {
         borderColor: '#ff4d4f',
@@ -428,20 +439,18 @@ const styles = StyleSheet.create({
     errorText: {
         color: '#ff4d4f',
         fontSize: 14,
-        marginTop: 4,
-        marginBottom: 20,
+        height: 16,
+        marginBottom: 12,
+        textAlign: 'center',
     },
     submitButton: {
         backgroundColor: '#2f54eb',
-        padding: 15,
+        padding: 12,
         borderRadius: 10,
         alignItems: 'center',
         width: '100%',
-        marginTop: 20,
     },
-    submitButtonDisabled: {
-        backgroundColor: '#ccc',
-    },
+
     submitButtonText: {
         color: '#fff',
         fontSize: 18,

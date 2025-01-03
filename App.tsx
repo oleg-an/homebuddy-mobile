@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useLayoutEffect} from 'react';
 import {
     StyleSheet,
     View,
@@ -17,6 +17,7 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {RouteProp} from '@react-navigation/native';
 import {StatusBar} from 'expo-status-bar';
+import { formatPhoneNumber, isValidUSPhoneNumber } from './utils/phoneUtils';
 
 type RootStackParamList = {
     Home: { zipCode?: string } | undefined;
@@ -27,6 +28,7 @@ type RootStackParamList = {
         zipCode: string;
     };
     ZipCode: { currentZipCode?: string } | undefined;
+    Auth: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -73,6 +75,28 @@ const REPAIR_OFFERS = [
 
 const HomeScreen: React.FC<HomeScreenProps> = ({navigation, route}) => {
     const [zipCode, setZipCode] = useState(route.params?.zipCode || '');
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [userData, setUserData] = useState<{fullName?: string, email: string, phone?: string} | null>(null);
+    
+    useEffect(() => {
+        const unsubscribe = navigation.addListener('focus', () => {
+            checkAuth();
+        });
+
+        return unsubscribe;
+    }, [navigation]);
+
+    const checkAuth = async () => {
+        const user = await AsyncStorage.getItem('user');
+        if (user) {
+            const parsedUser = JSON.parse(user);
+            setIsAuthenticated(true);
+            setUserData(parsedUser);
+        } else {
+            setIsAuthenticated(false);
+            setUserData(null);
+        }
+    };
 
     useEffect(() => {
         const checkZipCode = async () => {
@@ -87,6 +111,36 @@ const HomeScreen: React.FC<HomeScreenProps> = ({navigation, route}) => {
         };
         checkZipCode();
     }, []);
+
+    useLayoutEffect(() => {
+        navigation.setOptions({
+            headerRight: () => (
+                <TouchableOpacity
+                    style={styles.authButton}
+                    onPress={() => navigation.navigate('Auth')}
+                >
+                    {isAuthenticated && userData ? (
+                        <View style={styles.headerUserInfo}>
+                            <Text style={styles.headerUserName}>
+                                {userData.fullName?.split(' ')[0] || userData.email}
+                            </Text>
+                            <Ionicons 
+                                name="person"
+                                size={24} 
+                                color="#2f54eb"
+                            />
+                        </View>
+                    ) : (
+                        <Ionicons 
+                            name="person-outline"
+                            size={24} 
+                            color="#2f54eb"
+                        />
+                    )}
+                </TouchableOpacity>
+            ),
+        });
+    }, [navigation, isAuthenticated, userData]);
 
     const handleCardPress = (service: typeof REPAIR_OFFERS[0]) => {
         navigation.navigate('Details', {
@@ -120,9 +174,20 @@ const HomeScreen: React.FC<HomeScreenProps> = ({navigation, route}) => {
                         style={styles.zipButton}
                         onPress={() => navigation.navigate('ZipCode', zipCode ? {currentZipCode: zipCode} : undefined)}
                     >
-                        <Text style={styles.headerTitle}>Your zip code:</Text>
+                        <Text style={styles.headerTitle}>Zip:</Text>
                         <Ionicons name="location" size={24} />
                         <Text style={styles.zipText}>{zipCode}</Text>
+                    </TouchableOpacity>
+                    
+                    <TouchableOpacity
+                        style={styles.authButton}
+                        onPress={() => navigation.navigate('Auth')}
+                    >
+                        <Ionicons 
+                            name={isAuthenticated ? "person" : "person-outline"} 
+                            size={24} 
+                            color="#2f54eb"
+                        />
                     </TouchableOpacity>
                 </View>
             </View>
@@ -239,6 +304,174 @@ const DetailsScreen: React.FC<DetailsScreenProps> = ({route}) => {
     );
 };
 
+type AuthScreenProps = {
+    navigation: NativeStackNavigationProp<RootStackParamList, 'Auth'>;
+};
+
+const AuthScreen: React.FC<AuthScreenProps> = ({navigation}) => {
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [phone, setPhone] = useState('');
+    const [fullName, setFullName] = useState('');
+    const [isLogin, setIsLogin] = useState(true);
+    const [currentUser, setCurrentUser] = useState<null | {email: string, phone?: string, fullName?: string}>(null);
+
+    // Проверяем текущего пользователя при загрузке экрана
+    useEffect(() => {
+        checkCurrentUser();
+    }, []);
+
+    const checkCurrentUser = async () => {
+        const userData = await AsyncStorage.getItem('user');
+        if (userData) {
+            setCurrentUser(JSON.parse(userData));
+        }
+    };
+
+    const handleAuth = async () => {
+        if (!email || !password || (!isLogin && (!phone || !fullName))) {
+            Alert.alert('Error', 'Please fill in all fields');
+            return;
+        }
+
+        if (!isLogin && !isValidUSPhoneNumber(phone)) {
+            Alert.alert('Error', 'Please enter a valid US phone number');
+            return;
+        }
+
+        try {
+            // Здесь можно добавить реальную логику авторизации с бэкендом
+            
+            const userData = {
+                email,
+                fullName: !isLogin ? fullName : email, // Если логин, используем email как имя
+                phone: !isLogin ? phone : undefined,
+                lastLoginDate: new Date().toISOString(),
+            };
+
+            await AsyncStorage.setItem('user', JSON.stringify(userData));
+            setCurrentUser(userData);
+            
+            // Показываем успешное сообщение
+            Alert.alert(
+                'Success',
+                isLogin ? 'Successfully logged in!' : 'Account created successfully!',
+                [{ text: 'OK', onPress: () => navigation.goBack() }]
+            );
+        } catch (error) {
+            Alert.alert('Error', 'Authentication failed. Please try again.');
+        }
+    };
+
+    const handleLogout = async () => {
+        await AsyncStorage.removeItem('user');
+        setCurrentUser(null);
+        setEmail('');
+        setPassword('');
+        setPhone('');
+    };
+
+    if (currentUser) {
+        return (
+            <View style={styles.authContainer}>
+                <View style={styles.authContent}>
+                    <Text style={styles.authTitle}>Profile</Text>
+                    {currentUser.fullName && (
+                        <Text style={styles.profileText}>Name: {currentUser.fullName}</Text>
+                    )}
+                    <Text style={styles.profileText}>Email: {currentUser.email}</Text>
+                    {currentUser.phone && (
+                        <Text style={styles.profileText}>Phone: {currentUser.phone}</Text>
+                    )}
+                    <TouchableOpacity
+                        style={[styles.submitButton, styles.logoutButton]}
+                        onPress={handleLogout}
+                    >
+                        <Text style={styles.submitButtonText}>Logout</Text>
+                    </TouchableOpacity>
+                </View>
+            </View>
+        );
+    }
+
+    return (
+        <KeyboardAvoidingView
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+            style={styles.authContainer}
+        >
+            <View style={styles.authContent}>
+                <Text style={styles.authTitle}>
+                    {isLogin ? 'Login' : 'Sign Up'}
+                </Text>
+                
+                {!isLogin && (
+                    <View style={styles.inputContainer}>
+                        <Text style={styles.inputLabel}>Full Name</Text>
+                        <TextInput
+                            style={styles.authInput}
+                            value={fullName}
+                            onChangeText={setFullName}
+                            autoCapitalize="words"
+                        />
+                    </View>
+                )}
+
+                <View style={styles.inputContainer}>
+                    <Text style={styles.inputLabel}>Email</Text>
+                    <TextInput
+                        style={styles.authInput}
+                        value={email}
+                        onChangeText={setEmail}
+                        keyboardType="email-address"
+                        autoCapitalize="none"
+                    />
+                </View>
+                
+                {!isLogin && (
+                    <View style={styles.inputContainer}>
+                        <Text style={styles.inputLabel}>Phone Number</Text>
+                        <TextInput
+                            style={styles.authInput}
+                            value={phone}
+                            onChangeText={(text) => setPhone(formatPhoneNumber(text))}
+                            keyboardType="phone-pad"
+                            maxLength={12}
+                        />
+                    </View>
+                )}
+                
+                <View style={styles.inputContainer}>
+                    <Text style={styles.inputLabel}>Password</Text>
+                    <TextInput
+                        style={styles.authInput}
+                        value={password}
+                        onChangeText={setPassword}
+                        secureTextEntry
+                    />
+                </View>
+
+                <TouchableOpacity
+                    style={styles.submitButton}
+                    onPress={handleAuth}
+                >
+                    <Text style={styles.submitButtonText}>
+                        {isLogin ? 'Login' : 'Sign Up'}
+                    </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                    style={styles.switchAuthButton}
+                    onPress={() => setIsLogin(!isLogin)}
+                >
+                    <Text style={styles.switchAuthText}>
+                        {isLogin ? 'Need an account? Sign Up' : 'Have an account? Login'}
+                    </Text>
+                </TouchableOpacity>
+            </View>
+        </KeyboardAvoidingView>
+    );
+};
+
 const App = () => {
     return (
         <NavigationContainer>
@@ -275,6 +508,13 @@ const App = () => {
                     component={DetailsScreen}
                     options={({route}) => ({title: route.params.title})}
                 />
+                <Stack.Screen
+                    name="Auth"
+                    component={AuthScreen}
+                    options={{
+                        title: 'Account',
+                    }}
+                />
             </Stack.Navigator>
         </NavigationContainer>
     );
@@ -304,7 +544,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
     },
     headerTitle: {
-        marginRight: 10,
+        marginRight: 4,
         fontSize: 20,
         fontWeight: '500',
         color: '#2f54eb',
@@ -451,6 +691,73 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontSize: 18,
         fontWeight: 'bold',
+    },
+    authButton: {
+        padding: 8,
+    },
+    authContainer: {
+        flex: 1,
+        backgroundColor: '#fff',
+        justifyContent: 'center',
+    },
+    authContent: {
+        padding: 20,
+    },
+    authTitle: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: '#333',
+        marginBottom: 20,
+        textAlign: 'center',
+    },
+    authInput: {
+        borderWidth: 1,
+        borderColor: '#ddd',
+        borderRadius: 8,
+        padding: 12,
+        fontSize: 16,
+        marginBottom: 16,
+    },
+    switchAuthButton: {
+        marginTop: 16,
+        alignItems: 'center',
+    },
+    switchAuthText: {
+        color: '#2f54eb',
+        fontSize: 16,
+    },
+    profileText: {
+        fontSize: 16,
+        marginBottom: 12,
+        color: '#333',
+    },
+    logoutButton: {
+        backgroundColor: '#ff4d4f',
+        marginTop: 20,
+    },
+    inputContainer: {
+        marginBottom: 4,
+    },
+    inputLabel: {
+        fontSize: 14,
+        color: '#666',
+        marginBottom: 4,
+        fontWeight: '500',
+    },
+    headerUserInfo: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+    },
+    headerUserName: {
+        fontSize: 14,
+        color: '#2f54eb',
+        fontWeight: '500',
+    },
+    authButton: {
+        padding: 8,
+        flexDirection: 'row',
+        alignItems: 'center',
     },
 });
 

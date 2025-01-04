@@ -132,6 +132,14 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation, route }) => {
       </View>
 
       <ScrollView>
+        <Text style={{
+          color: '#2f54eb',
+          paddingHorizontal: 16,
+          paddingTop: 10,
+          fontSize: 20,
+          fontWeight: '600',
+          textAlign: 'center'
+        }}>Available Services in Your Area</Text>
         <View style={styles.scrollContent}>{REPAIR_OFFERS.map(renderOfferCard)}</View>
       </ScrollView>
     </View>

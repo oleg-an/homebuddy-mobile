@@ -73,9 +73,6 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation, route }) => {
         <TouchableOpacity style={styles.authButton} onPress={() => navigation.navigate('Auth')}>
           {isAuthenticated && userData ? (
             <View style={styles.headerUserInfo}>
-              <Text style={styles.headerUserName}>
-                {userData.fullName?.split(' ')[0] || userData.email}
-              </Text>
               <Ionicons name="person" size={24} color="#2f54eb" />
             </View>
           ) : (
@@ -120,7 +117,6 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation, route }) => {
               navigation.navigate('ZipCode', zipCode ? { currentZipCode: zipCode } : undefined)
             }
           >
-            <Text style={styles.headerTitle}>Zip:</Text>
             <Ionicons name="location" size={24} />
             <Text style={styles.zipText}>{zipCode}</Text>
           </TouchableOpacity>
@@ -323,32 +319,10 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     lineHeight: 24,
   },
-  detailsPrice: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#fa8c16',
-    marginBottom: 20,
-  },
-  orderButton: {
-    backgroundColor: '#fa8c16',
-    padding: 15,
-    borderRadius: 10,
-    alignItems: 'center',
-  },
-  orderButtonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
   headerUserInfo: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-  },
-  headerUserName: {
-    fontSize: 14,
-    color: '#2f54eb',
-    fontWeight: '500',
   },
   authButton: {
     padding: 8,

@@ -30,13 +30,17 @@ const buttonStyles = StyleSheet.create({
     width: '100%',
   },
   primaryPressed: {
-    backgroundColor: '#1939c0', // более темный оттенок primary
+    backgroundColor: '#1939c0',
   },
   secondary: {
-    backgroundColor: '#ff4d4f',
+    padding: 12,
+    borderRadius: 10,
+    alignItems: 'center',
+    width: '100%',
+    backgroundColor: '#fa8c16',
   },
   secondaryPressed: {
-    backgroundColor: '#d93133', // более темный оттенок secondary
+    backgroundColor: '#d67812',
   },
 });
 

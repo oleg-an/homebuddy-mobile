@@ -1,4 +1,4 @@
-import { StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, Pressable } from 'react-native';
 import React, { ReactNode } from 'react';
 
 interface ButtonProps {
@@ -9,9 +9,15 @@ interface ButtonProps {
 
 export function Button({ onPress, variant, children }: ButtonProps) {
   return (
-    <TouchableOpacity style={[buttonStyles[variant]]} onPress={onPress}>
+    <Pressable
+      style={({ pressed }) => [
+        buttonStyles[variant],
+        pressed && buttonStyles[`${variant}Pressed`],
+      ]}
+      onPress={onPress}
+    >
       <Text style={[textStyles[variant]]}>{children}</Text>
-    </TouchableOpacity>
+    </Pressable>
   );
 }
 
@@ -23,8 +29,14 @@ const buttonStyles = StyleSheet.create({
     alignItems: 'center',
     width: '100%',
   },
+  primaryPressed: {
+    backgroundColor: '#1939c0', // более темный оттенок primary
+  },
   secondary: {
     backgroundColor: '#ff4d4f',
+  },
+  secondaryPressed: {
+    backgroundColor: '#d93133', // более темный оттенок secondary
   },
 });
 

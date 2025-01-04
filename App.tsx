@@ -17,19 +17,7 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {RouteProp} from '@react-navigation/native';
 import {StatusBar} from 'expo-status-bar';
-import { formatPhoneNumber, isValidUSPhoneNumber } from './utils/phoneUtils';
-
-type RootStackParamList = {
-    Home: { zipCode?: string } | undefined;
-    Details: {
-        id: string;
-        title: string;
-        description: string;
-        zipCode: string;
-    };
-    ZipCode: { currentZipCode?: string } | undefined;
-    Auth: undefined;
-};
+import {formatPhoneNumber, isValidUSPhoneNumber} from './utils/phoneUtils';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -76,8 +64,8 @@ const REPAIR_OFFERS = [
 const HomeScreen: React.FC<HomeScreenProps> = ({navigation, route}) => {
     const [zipCode, setZipCode] = useState(route.params?.zipCode || '');
     const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [userData, setUserData] = useState<{fullName?: string, email: string, phone?: string} | null>(null);
-    
+    const [userData, setUserData] = useState<{ fullName?: string, email: string, phone?: string } | null>(null);
+
     useEffect(() => {
         const unsubscribe = navigation.addListener('focus', () => {
             checkAuth();
@@ -124,16 +112,16 @@ const HomeScreen: React.FC<HomeScreenProps> = ({navigation, route}) => {
                             <Text style={styles.headerUserName}>
                                 {userData.fullName?.split(' ')[0] || userData.email}
                             </Text>
-                            <Ionicons 
+                            <Ionicons
                                 name="person"
-                                size={24} 
+                                size={24}
                                 color="#2f54eb"
                             />
                         </View>
                     ) : (
-                        <Ionicons 
+                        <Ionicons
                             name="person-outline"
-                            size={24} 
+                            size={24}
                             color="#2f54eb"
                         />
                     )}
@@ -175,17 +163,17 @@ const HomeScreen: React.FC<HomeScreenProps> = ({navigation, route}) => {
                         onPress={() => navigation.navigate('ZipCode', zipCode ? {currentZipCode: zipCode} : undefined)}
                     >
                         <Text style={styles.headerTitle}>Zip:</Text>
-                        <Ionicons name="location" size={24} />
+                        <Ionicons name="location" size={24}/>
                         <Text style={styles.zipText}>{zipCode}</Text>
                     </TouchableOpacity>
-                    
+
                     <TouchableOpacity
                         style={styles.authButton}
                         onPress={() => navigation.navigate('Auth')}
                     >
-                        <Ionicons 
-                            name={isAuthenticated ? "person" : "person-outline"} 
-                            size={24} 
+                        <Ionicons
+                            name={isAuthenticated ? "person" : "person-outline"}
+                            size={24}
                             color="#2f54eb"
                         />
                     </TouchableOpacity>
@@ -201,75 +189,10 @@ const HomeScreen: React.FC<HomeScreenProps> = ({navigation, route}) => {
     );
 };
 
-type ZipCodeScreenProps = {
-    navigation: NativeStackNavigationProp<RootStackParamList, 'ZipCode'>;
-    route: RouteProp<RootStackParamList, 'ZipCode'>;
-};
 import {Image} from 'expo-image';
-
-const ZipCodeScreen: React.FC<ZipCodeScreenProps> = ({navigation, route}) => {
-    const [zipCode, setZipCode] = useState(route.params?.currentZipCode || '');
-    const [error, setError] = useState('');
-
-    const validateAndSaveZipCode = async () => {
-        const zipRegex = /^\d{5}$/;
-        if (!zipRegex.test(zipCode)) {
-            setError('Please enter a valid 5-digit ZIP code');
-            return;
-        }
-
-        // Save ZIP code to AsyncStorage
-        await AsyncStorage.setItem('zipCode', zipCode);
-
-        // Save ZIP code and go back to Home screen
-        navigation.navigate('Home', {zipCode});
-    };
-
-    return (
-        <KeyboardAvoidingView
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
-            style={styles.zipCodeScreen}
-        >
-
-            <View style={styles.zipCodeContent}>
-                {/*<Image style={styles.heroImage} source={require('./assets/hero.svg')}/>*/}
-                <Text style={styles.zipCodeTitle}>Enter Your ZIP Code</Text>
-                <Text style={styles.zipCodeSubtitle}>
-                    To see services available in your area
-                </Text>
-
-                <TextInput
-                    style={[
-                        styles.zipCodeInput,
-                        error.trim() ? styles.zipCodeInputError : null
-                    ]}
-                    placeholder="Enter ZIP code"
-                    value={zipCode}
-                    onChangeText={(text) => {
-                        setZipCode(text.replace(/[^0-9]/g, '').slice(0, 5));
-                        setError(' ');
-                    }}
-                    keyboardType="numeric"
-                    maxLength={5}
-                />
-
-                <Text style={[
-                    styles.errorText,
-                    {opacity: error.trim() ? 1 : 0}
-                ]}>
-                    {error}
-                </Text>
-
-                <TouchableOpacity
-                    style={styles.submitButton}
-                    onPress={validateAndSaveZipCode}
-                >
-                    <Text style={styles.submitButtonText}>Find available services</Text>
-                </TouchableOpacity>
-            </View>
-        </KeyboardAvoidingView>
-    );
-};
+import {ZipCodeScreen} from "./screens/ZipCodeScreen";
+import {RootStackParamList} from "./models";
+import {Button} from "./components/Button";
 
 type DetailsScreenProps = {
     route: RouteProp<RootStackParamList, 'Details'>;
@@ -314,7 +237,7 @@ const AuthScreen: React.FC<AuthScreenProps> = ({navigation}) => {
     const [phone, setPhone] = useState('');
     const [fullName, setFullName] = useState('');
     const [isLogin, setIsLogin] = useState(true);
-    const [currentUser, setCurrentUser] = useState<null | {email: string, phone?: string, fullName?: string}>(null);
+    const [currentUser, setCurrentUser] = useState<null | { email: string, phone?: string, fullName?: string }>(null);
 
     // Проверяем текущего пользователя при загрузке экрана
     useEffect(() => {
@@ -341,7 +264,7 @@ const AuthScreen: React.FC<AuthScreenProps> = ({navigation}) => {
 
         try {
             // Здесь можно добавить реальную логику авторизации с бэкендом
-            
+
             const userData = {
                 email,
                 fullName: !isLogin ? fullName : email, // Если логин, используем email как имя
@@ -351,12 +274,12 @@ const AuthScreen: React.FC<AuthScreenProps> = ({navigation}) => {
 
             await AsyncStorage.setItem('user', JSON.stringify(userData));
             setCurrentUser(userData);
-            
+
             // Показываем успешное сообщение
             Alert.alert(
                 'Success',
                 isLogin ? 'Successfully logged in!' : 'Account created successfully!',
-                [{ text: 'OK', onPress: () => navigation.goBack() }]
+                [{text: 'OK', onPress: () => navigation.goBack()}]
             );
         } catch (error) {
             Alert.alert('Error', 'Authentication failed. Please try again.');
@@ -383,12 +306,9 @@ const AuthScreen: React.FC<AuthScreenProps> = ({navigation}) => {
                     {currentUser.phone && (
                         <Text style={styles.profileText}>Phone: {currentUser.phone}</Text>
                     )}
-                    <TouchableOpacity
-                        style={[styles.submitButton, styles.logoutButton]}
-                        onPress={handleLogout}
-                    >
-                        <Text style={styles.submitButtonText}>Logout</Text>
-                    </TouchableOpacity>
+                    <Button variant="primary" onPress={handleLogout}>
+                        Logout
+                    </Button>
                 </View>
             </View>
         );
@@ -403,7 +323,7 @@ const AuthScreen: React.FC<AuthScreenProps> = ({navigation}) => {
                 <Text style={styles.authTitle}>
                     {isLogin ? 'Login' : 'Sign Up'}
                 </Text>
-                
+
                 {!isLogin && (
                     <View style={styles.inputContainer}>
                         <Text style={styles.inputLabel}>Full Name</Text>
@@ -426,7 +346,7 @@ const AuthScreen: React.FC<AuthScreenProps> = ({navigation}) => {
                         autoCapitalize="none"
                     />
                 </View>
-                
+
                 {!isLogin && (
                     <View style={styles.inputContainer}>
                         <Text style={styles.inputLabel}>Phone Number</Text>
@@ -439,7 +359,7 @@ const AuthScreen: React.FC<AuthScreenProps> = ({navigation}) => {
                         />
                     </View>
                 )}
-                
+
                 <View style={styles.inputContainer}>
                     <Text style={styles.inputLabel}>Password</Text>
                     <TextInput
@@ -449,15 +369,9 @@ const AuthScreen: React.FC<AuthScreenProps> = ({navigation}) => {
                         secureTextEntry
                     />
                 </View>
-
-                <TouchableOpacity
-                    style={styles.submitButton}
-                    onPress={handleAuth}
-                >
-                    <Text style={styles.submitButtonText}>
-                        {isLogin ? 'Login' : 'Sign Up'}
-                    </Text>
-                </TouchableOpacity>
+                <Button variant="primary" onPress={handleAuth}>
+                    {isLogin ? 'Login' : 'Sign Up'}
+                </Button>
 
                 <TouchableOpacity
                     style={styles.switchAuthButton}
@@ -637,63 +551,10 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: 'bold',
     },
-    zipCodeScreen: {
-        flex: 1,
-        backgroundColor: '#fff',
-        justifyContent: 'center', // Center content vertically
-    },
-    zipCodeContent: {
-        paddingHorizontal: 20,
-        alignItems: 'center',
-    },
-    zipCodeTitle: {
-        fontSize: 22,
-        fontWeight: 'bold',
-        color: '#333',
-        marginBottom: 4,
-        textAlign: 'center',
-    },
-    zipCodeSubtitle: {
-        fontSize: 15,
-        color: '#666',
-        marginBottom: 12,
-        textAlign: 'center',
-    },
-    zipCodeInput: {
-        borderWidth: 1,
-        borderColor: '#ddd',
-        borderRadius: 8,
-        padding: 10,
-        fontSize: 16,
-        backgroundColor: '#fff',
-        width: '100%',
-        marginBottom: 4,
-    },
-    zipCodeInputError: {
-        borderColor: '#ff4d4f',
-    },
-    errorText: {
-        color: '#ff4d4f',
-        fontSize: 14,
-        height: 16,
-        marginBottom: 12,
-        textAlign: 'center',
-    },
-    submitButton: {
-        backgroundColor: '#2f54eb',
-        padding: 12,
-        borderRadius: 10,
-        alignItems: 'center',
-        width: '100%',
-    },
-
-    submitButtonText: {
-        color: '#fff',
-        fontSize: 18,
-        fontWeight: 'bold',
-    },
     authButton: {
         padding: 8,
+        flexDirection: 'row',
+        alignItems: 'center',
     },
     authContainer: {
         flex: 1,
@@ -731,10 +592,6 @@ const styles = StyleSheet.create({
         marginBottom: 12,
         color: '#333',
     },
-    logoutButton: {
-        backgroundColor: '#ff4d4f',
-        marginTop: 20,
-    },
     inputContainer: {
         marginBottom: 4,
     },
@@ -753,12 +610,7 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: '#2f54eb',
         fontWeight: '500',
-    },
-    authButton: {
-        padding: 8,
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
+    }
 });
 
 export default App;

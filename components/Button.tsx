@@ -13,8 +13,9 @@ export function Button({onPress, variant, children}: ButtonProps) {
             style={[buttonStyles[variant]]}
             onPress={onPress}
         >
-            <Text>{children}</Text>
-        </TouchableOpacity>);
+            <Text style={[textStyles[variant]]}>{children}</Text>
+        </TouchableOpacity>
+    );
 }
 
 const buttonStyles = StyleSheet.create({
@@ -24,11 +25,21 @@ const buttonStyles = StyleSheet.create({
         borderRadius: 10,
         alignItems: 'center',
         width: '100%',
+    },
+    secondary: {
+        backgroundColor: '#ff4d4f',
+    }
+});
+
+const textStyles = StyleSheet.create({
+    primary: {
         color: '#fff',
         fontSize: 18,
         fontWeight: 'bold',
     },
     secondary: {
-        backgroundColor: '#ff4d4f',
+        color: '#fff',
+        fontSize: 18,
+        fontWeight: 'bold',
     }
 });

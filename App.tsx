@@ -5,10 +5,7 @@ import {
   Text,
   ScrollView,
   TouchableOpacity,
-  TextInput,
   Alert,
-  KeyboardAvoidingView,
-  Platform,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
@@ -26,39 +23,6 @@ type HomeScreenProps = {
   navigation: HomeScreenNavigationProp;
   route: RouteProp<RootStackParamList, 'Home'>;
 };
-
-const REPAIR_OFFERS = [
-  {
-    id: '1',
-    title: 'Walk-in Showers',
-    description: 'Modern shower cabins with easy access',
-  },
-  {
-    id: '2',
-    title: 'Walk-in Tubs',
-    description: 'Bathtubs with door for convenient access',
-  },
-  {
-    id: '3',
-    title: 'Stairlifts',
-    description: 'Safe and reliable stair lift solutions',
-  },
-  {
-    id: '4',
-    title: 'Kitchen Cabinets',
-    description: 'Custom kitchen cabinet installation',
-  },
-  {
-    id: '5',
-    title: 'Window Replacement',
-    description: 'Energy-efficient window solutions',
-  },
-  {
-    id: '6',
-    title: 'Gutter Guards',
-    description: 'Premium gutter protection systems',
-  },
-];
 
 const HomeScreen: React.FC<HomeScreenProps> = ({ navigation, route }) => {
   const [zipCode, setZipCode] = useState(route.params?.zipCode || '');
@@ -181,6 +145,8 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation, route }) => {
 import { ZipCodeScreen } from './screens/ZipCodeScreen';
 import { RootStackParamList } from './models';
 import { AuthScreen } from './screens/AuthScreen';
+import { REPAIR_OFFERS } from './const';
+import { Button } from './components/Button';
 
 type DetailsScreenProps = {
   route: RouteProp<RootStackParamList, 'Details'>;
@@ -201,9 +167,9 @@ const DetailsScreen: React.FC<DetailsScreenProps> = ({ route }) => {
       <View style={styles.detailsContent}>
         <Text style={styles.detailsTitle}>{title}</Text>
         <Text style={styles.detailsDescription}>{description}</Text>
-        <TouchableOpacity style={styles.orderButton} activeOpacity={0.6} onPress={handleEstimate}>
-          <Text style={styles.orderButtonText}>Get Estimate</Text>
-        </TouchableOpacity>
+        <Button variant="secondary" onPress={handleEstimate}>
+          Get Estimate
+        </Button>
       </View>
     </View>
   );

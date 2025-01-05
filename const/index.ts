@@ -1,4 +1,10 @@
-export const REPAIR_OFFERS = [
+type Service = {
+  id: string;
+  title: string;
+  description: string;
+};
+
+export const REPAIR_OFFERS: Service[] = [
   {
     id: 'shower',
     title: 'Walk-in Showers',
@@ -29,4 +35,4 @@ export const REPAIR_OFFERS = [
     title: 'Gutter Guards',
     description: 'Premium gutter protection systems',
   },
-] as const;
+];

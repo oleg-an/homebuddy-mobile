@@ -14,4 +14,5 @@ export type RootStackParamList = {
   KitchenDetails: { zipCode: string };
   WindowsDetails: { zipCode: string };
   GuttersDetails: { zipCode: string };
+  HowItWorks: undefined;
 }; 

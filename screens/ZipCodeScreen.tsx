@@ -13,6 +13,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '../models';
 import { Button } from '../components/Button';
+import { Image } from 'expo-image';
 
 export type ZipCodeScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'ZipCode'>;
@@ -43,7 +44,7 @@ export const ZipCodeScreen: React.FC<ZipCodeScreenProps> = ({ navigation, route 
       style={styles.zipCodeScreen}
     >
       <View style={styles.zipCodeContent}>
-        {/*<Image style={styles.heroImage} source={require('./assets/hero.svg')}/>*/}
+        <Image style={styles.heroImage} source={require('../assets/hero.svg')} />
         <Text style={styles.zipCodeTitle}>Enter Your ZIP Code</Text>
         <Text style={styles.zipCodeSubtitle}>To see services available in your area</Text>
 
@@ -70,9 +71,8 @@ export const ZipCodeScreen: React.FC<ZipCodeScreenProps> = ({ navigation, route 
 
 const styles = StyleSheet.create({
   zipCodeContent: {
-    display: 'flex',
     paddingHorizontal: 20,
-    alignItems: 'center',
+    alignItems: 'center'
   },
   zipCodeTitle: {
     fontSize: 22,
@@ -108,8 +108,12 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   zipCodeScreen: {
-    flex: 1,
     backgroundColor: '#fff',
-    justifyContent: 'center', // Center content vertically
+  },
+  heroImage: {
+    height: 250,
+    width: 120,
+    marginBottom: 20,
+    marginTop: 40
   },
 });

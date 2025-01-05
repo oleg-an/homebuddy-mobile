@@ -228,11 +228,6 @@ const App = () => {
 };
 
 const styles = StyleSheet.create({
-  heroImage: {
-    height: 250,
-    width: 120,
-    marginBottom: 20,
-  },
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',

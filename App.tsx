@@ -14,6 +14,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RouteProp } from '@react-navigation/native';
 import { StatusBar } from 'expo-status-bar';
+import { ShowerDetails } from './screens/details/ShowerDetails';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -84,10 +85,14 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation, route }) => {
   }, [navigation, isAuthenticated, userData]);
 
   const handleCardPress = (service: (typeof REPAIR_OFFERS)[0]) => {
-    navigation.navigate('Details', {
-      ...service,
-      zipCode,
-    });
+    if (service.id === 'shower') {
+      navigation.navigate('ShowerDetails', { zipCode });
+    } else {
+      navigation.navigate('Details', {
+        ...service,
+        zipCode,
+      });
+    }
   };
 
   const renderOfferCard = (service: (typeof REPAIR_OFFERS)[0]) => (
@@ -221,6 +226,11 @@ const App = () => {
           options={{
             title: 'Account',
           }}
+        />
+        <Stack.Screen
+          name="ShowerDetails"
+          component={ShowerDetails}
+          options={{ title: 'Walk-in Showers' }}
         />
       </Stack.Navigator>
     </NavigationContainer>

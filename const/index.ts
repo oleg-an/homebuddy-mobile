@@ -1,32 +1,32 @@
 export const REPAIR_OFFERS = [
   {
-    id: '1',
+    id: 'shower',
     title: 'Walk-in Showers',
     description: 'Modern shower cabins with easy access',
   },
   {
-    id: '2',
+    id: 'tub',
     title: 'Walk-in Tubs',
     description: 'Bathtubs with door for convenient access',
   },
   {
-    id: '3',
+    id: 'stairlift',
     title: 'Stairlifts',
     description: 'Safe and reliable stair lift solutions',
   },
   {
-    id: '4',
+    id: 'kitchen',
     title: 'Kitchen Cabinets',
     description: 'Custom kitchen cabinet installation',
   },
   {
-    id: '5',
+    id: 'windows',
     title: 'Window Replacement',
     description: 'Energy-efficient window solutions',
   },
   {
-    id: '6',
+    id: 'gutters',
     title: 'Gutter Guards',
     description: 'Premium gutter protection systems',
   },
-];
+] as const;

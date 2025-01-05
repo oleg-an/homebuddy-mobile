@@ -23,11 +23,17 @@ export type ZipCodeScreenProps = {
 export const ZipCodeScreen: React.FC<ZipCodeScreenProps> = ({ navigation, route }) => {
   const [zipCode, setZipCode] = useState(route.params?.currentZipCode || '');
   const [error, setError] = useState('');
+  const [noServices, setNoServices] = useState(false);
 
   const validateAndSaveZipCode = async () => {
     const zipRegex = /^\d{5}$/;
     if (!zipRegex.test(zipCode)) {
       setError('Please enter a valid 5-digit ZIP code');
+      return;
+    }
+
+    if (zipCode === '00000') {
+      setNoServices(true);
       return;
     }
 
@@ -37,6 +43,32 @@ export const ZipCodeScreen: React.FC<ZipCodeScreenProps> = ({ navigation, route 
     // Save ZIP code and go back to Home screen
     navigation.navigate('Home', { zipCode });
   };
+
+  if (noServices) {
+    return (
+      <View style={[styles.zipCodeScreen, styles.noServicesContainer]}>
+        <Image 
+          style={[styles.heroImage, styles.dimmed]} 
+          source={require('../assets/hero.svg')} 
+        />
+        <Text style={styles.noServicesText}>
+          Sorry, there are no available services in your area yet.
+        </Text>
+        <Text style={styles.noServicesSubtext}>
+          We're constantly expanding our coverage. Please try a different ZIP code.
+        </Text>
+        <Button 
+          variant="primary" 
+          onPress={() => {
+            setNoServices(false);
+            setZipCode('');
+          }}
+        >
+          Try different ZIP code
+        </Button>
+      </View>
+    );
+  }
 
   return (
     <KeyboardAvoidingView
@@ -58,6 +90,8 @@ export const ZipCodeScreen: React.FC<ZipCodeScreenProps> = ({ navigation, route 
           }}
           keyboardType="numeric"
           maxLength={5}
+          returnKeyType="go"
+          onSubmitEditing={validateAndSaveZipCode}
         />
 
         <Text style={[styles.errorText, { opacity: error.trim() ? 1 : 0 }]}>{error}</Text>
@@ -115,5 +149,26 @@ const styles = StyleSheet.create({
     width: 120,
     marginBottom: 20,
     marginTop: 40
+  },
+  noServicesContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  noServicesText: {
+    fontSize: 18,
+    color: '#333',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  dimmed: {
+    opacity: 0.5,
+  },
+  noServicesSubtext: {
+    fontSize: 14,
+    color: '#666',
+    textAlign: 'center',
+    marginBottom: 24,
   },
 });

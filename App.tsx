@@ -110,7 +110,6 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation, route }) => {
       </View>
     </View>
   );
-
   return (
     <View style={styles.container}>
       <StatusBar style="auto" />
@@ -125,14 +124,23 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation, route }) => {
             <Ionicons name="location" size={24} />
             <Text style={styles.zipText}>{zipCode}</Text>
           </TouchableOpacity>
-
-          <TouchableOpacity style={styles.authButton} onPress={() => navigation.navigate('Auth')}>
-            <Ionicons
-              name={isAuthenticated ? 'person' : 'person-outline'}
-              size={24}
-              color="#2f54eb"
-            />
-          </TouchableOpacity>
+          
+          <View style={{flexDirection: 'row', gap: 16, alignItems: 'center'}}>
+            <TouchableOpacity onPress={() => navigation.navigate('HowItWorks')}>
+              <Ionicons
+                name="help"
+                size={24}
+                color="#2f54eb"
+              />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.authButton} onPress={() => navigation.navigate('Auth')}>
+              <Ionicons
+                name={isAuthenticated ? 'person' : 'person-outline'}
+                size={24}
+                color="#2f54eb"
+              />
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
 
@@ -156,6 +164,7 @@ import { RootStackParamList } from './models';
 import { AuthScreen } from './screens/AuthScreen';
 import { REPAIR_OFFERS } from './const';
 import { Button } from './components/Button';
+import { HowItWorks } from './screens/HowItWorks';
 
 type DetailsScreenProps = {
   route: RouteProp<RootStackParamList, 'Details'>;
@@ -225,6 +234,13 @@ const App = () => {
           component={AuthScreen}
           options={{
             title: 'Account',
+          }}
+        />
+        <Stack.Screen
+          name="HowItWorks"
+          component={HowItWorks}
+          options={{
+            title: 'How It Works',
           }}
         />
         <Stack.Screen

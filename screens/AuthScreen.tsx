@@ -56,19 +56,15 @@ export const AuthScreen: React.FC<AuthScreenProps> = ({ navigation }) => {
     }
 
     try {
-      // Здесь можно добавить реальную логику авторизации с бэкендом
-
       const userData = {
         email,
-        fullName: !isLogin ? fullName : email, // Если логин, используем email как имя
+        fullName: !isLogin ? fullName : email,
         phone: !isLogin ? phone : undefined,
-        lastLoginDate: new Date().toISOString(),
       };
 
       await AsyncStorage.setItem('user', JSON.stringify(userData));
       setCurrentUser(userData);
 
-      // Показываем успешное сообщение
       Alert.alert(
         'Success',
         isLogin ? 'Successfully logged in!' : 'Account created successfully!',
